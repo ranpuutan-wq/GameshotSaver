@@ -44,7 +44,7 @@ public class SettingsForm : Form
     public SettingsForm(AppConfig src)
     {
         // ===== フォーム基本 =====
-        Text = "AutoShot 設定";
+        Text = $"{GameshotSaver.AppInfo.DisplayName} 設定";
         Width = 720; Height = 520;
         StartPosition = FormStartPosition.CenterParent;
         MinimizeBox = false; MaximizeBox = false;
