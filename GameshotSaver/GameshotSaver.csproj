@@ -1,0 +1,82 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>ゲーム画面キャプチャ</AssemblyName>
+    <Product>ゲーム画面キャプチャ</Product>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>autoshoot_user_redframe.ico</ApplicationIcon>
+    <!-- 実際に Windows が参照する 4桁のファイル版は“ビルド時刻”で毎回更新 -->
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <!-- 2000/01/01 からの経過日（0〜65535内） -->
+    <DaysSince2000>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::Parse('2000-01-01'))).Days)</DaysSince2000>
+    <!-- HHmm（0〜2359 → 4桁） -->
+    <TimeHHmm>$([System.DateTime]::UtcNow.ToString('HHmm'))</TimeHHmm>
+    <!-- FileVersion = 1.0.(経過日).(HHmm) 例: 1.0.9360.1423 -->
+    <FileVersion>1.0.$(DaysSince2000).$(TimeHHmm)</FileVersion>
+    <!-- 表示用（Aboutやログ用）。必要ならここも同じに -->
+    <InformationalVersion>$(Version)+$(FileVersion)</InformationalVersion>
+    <!-- Inno Setup コンパイラのパス（デフォルト） -->
+    <InnoSetupExe>$(LOCALAPPDATA)\Programs\Inno Setup 6\ISCC.exe</InnoSetupExe>
+    <!-- 手動で止めたいときに /p:CreateInstaller=false を渡せるスイッチ -->
+    <CreateInstaller>false</CreateInstaller>
+    <SelfContained>false</SelfContained>    <!-- ランタイムは同梱しない＝サイズ最小 -->
+    <PublishSingleFile>false</PublishSingleFile>    <!-- Innoで圧縮するので不要 -->
+    <PublishReadyToRun>false</PublishReadyToRun>    <!-- サイズ削減 -->
+    <DebugType>none</DebugType>    <!-- PDB除外 -->
+    <SatelliteResourceLanguages>ja</SatelliteResourceLanguages>    <!-- 日本語のみ -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="autoshoot_user_redframe.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <Choose>
+    <When Condition="Exists('$(LOCALAPPDATA)\Programs\Inno Setup 6\ISCC.exe')">
+      <PropertyGroup>
+        <InnoSetupExe>$(LOCALAPPDATA)\Programs\Inno Setup 6\ISCC.exe</InnoSetupExe>
+      </PropertyGroup>
+    </When>
+    <When Condition="Exists('C:\Program Files (x86)\Inno Setup 6\ISCC.exe')">
+      <PropertyGroup>
+        <InnoSetupExe>C:\Program Files (x86)\Inno Setup 6\ISCC.exe</InnoSetupExe>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <InnoSetupExe>ISCC.exe</InnoSetupExe>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+
+  <Target Name="BuildInstaller"
+          AfterTargets="Publish"
+          Condition="'$(CreateInstaller)'=='true' and '$(RuntimeIdentifier)'=='win-x64'">
+    <Message Importance="High" Text="Inno Setup: '$(InnoSetupExe)'" />
+    <!-- PublishDir を /DMyPubDir=... として渡す。作業ディレクトリはプロジェクトに固定 -->
+    <Warning Condition="!Exists('$(InnoSetupExe)')"
+             Text="ISCC.exe が見つかりません。installer をスキップします。" />
+    <Exec Condition="Exists('$(InnoSetupExe)')"
+          Command="&quot;$(InnoSetupExe)&quot; /DMyPubDir=&quot;$(PublishDir)&quot; &quot;$(ProjectDir)setup.iss&quot;"
+          WorkingDirectory="$(ProjectDir)" />
+  </Target>
+  
+</Project>
