@@ -34,7 +34,7 @@ $hint = "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe"
 $paths = @(
   $hint,
   "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe",
-  "$env:ProgramFiles(x86)\Inno Setup 6\ISCC.exe",
+  "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
   "$env:ProgramFiles\Inno Setup 6\ISCC.exe"
 ) | Where-Object { $_ -and $_.Trim().Length -gt 0 } | Select-Object -Unique
 
@@ -64,7 +64,8 @@ Remove-Item -Path (Join-Path $root "dist\*.exe") -ErrorAction SilentlyContinue
 $iss    = Join-Path $root "setup.iss"
 if (-not (Test-Path $iss)) { throw "setup.iss not found: $iss" }
 
-$define = ('/DMyPubDir="{0}"' -f $pubDir)
+# 引用符は埋め込まない（PowerShell 7 では内側の " がエスケープされて ISCC に渡り失敗するため）
+$define = "/DMyPubDir=$pubDir"
 
 Write-Host ("ISCC : {0}" -f $iscc)
 Write-Host ("PubDir: {0}" -f $pubDir)

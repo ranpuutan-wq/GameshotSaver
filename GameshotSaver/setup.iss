@@ -13,17 +13,19 @@
 #define MyAppVer  GetVersionNumbersString(PubDir + "\" + MyAppExe)
 
   
-#ifnexist MyPubDir + "\" + MyAppExe
-  #error "Publish フォルダに EXE がありません: " + MyPubDir + "\" + MyAppExe
+#ifnexist PubDir + "\" + MyAppExe
+  #error "Publish フォルダに EXE がありません: " + PubDir + "\" + MyAppExe
 #endif
 
 [Languages]
 Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 
 [Setup]
-AppId={{A2C7C7E1-8D32-41B8-9B6B-FA12-34567890ABCD}} 
+; AppId はアプリの識別子。変更すると別アプリ扱いになるので固定すること
+AppId={{F2D2A6A8-4841-4C47-817E-8B1F055291DA}
 AppName={#MyAppName}
-AppVersion={#MyAppVer}                       ; バージョン表示は内部に保持
+; バージョン表示は内部に保持（行末コメントは値に含まれてしまうため別行に書く）
+AppVersion={#MyAppVer}
 
 ; ★現在ユーザーを基本に。必要ならダイアログで全ユーザーも選べる
 PrivilegesRequired=lowest
@@ -39,7 +41,8 @@ UsePreviousPrivileges=no
 DefaultGroupName={#MyAppName}
 OutputDir={#OutDir}
 OutputBaseFilename={#MyAppName}Setup
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
